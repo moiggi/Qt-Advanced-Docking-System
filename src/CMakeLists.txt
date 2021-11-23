@@ -6,7 +6,7 @@ if (UNIX AND NOT APPLE)
     include_directories(${Qt${QT_VERSION_MAJOR}Gui_PRIVATE_INCLUDE_DIRS})
 endif()
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-if(BUILD_STATIC)
+if(BUILD_STATIC AND WIN32)
     set(CMAKE_STATIC_LIBRARY_SUFFIX "_static${CMAKE_STATIC_LIBRARY_SUFFIX}")
 endif()
 set(ads_SRCS
@@ -64,6 +64,11 @@ endif()
 target_link_libraries(qtadvanceddocking PUBLIC Qt${QT_VERSION_MAJOR}::Core 
                                                Qt${QT_VERSION_MAJOR}::Gui 
                                                Qt${QT_VERSION_MAJOR}::Widgets)
+if (UNIX)
+    find_package(XCB)
+    target_link_libraries(qtadvanceddocking PRIVATE XCB::XCB)
+endif()
+
 set_target_properties(qtadvanceddocking PROPERTIES
     AUTOMOC ON
     AUTORCC ON
@@ -83,21 +88,15 @@ write_basic_package_version_file(
     COMPATIBILITY SameMajorVersion
 )
 install(FILES ${ads_HEADERS}
-    DESTINATION include
+    DESTINATION include/${PROJECT_NAME}
     COMPONENT headers
-)
-install(FILES
-    "${CMAKE_SOURCE_DIR}/LICENSE"
-    "${CMAKE_SOURCE_DIR}/gnu-lgpl-v2.1.md"
-    DESTINATION license
-    COMPONENT license
 )
 install(TARGETS qtadvanceddocking
     EXPORT adsTargets
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
-    INCLUDES DESTINATION include
+    INCLUDES DESTINATION include/${PROJECT_NAME}
 )
 
 install(EXPORT adsTargets
